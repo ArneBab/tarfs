@@ -1,0 +1,67 @@
+This is tarfs, a tar filesystem translator for the GNU Hurd.
+============================================================
+
+
+1. Introduction
+
+Tarfs is a GNU Hurd filesystem server for tar files.  In other words, it
+can be used to "mount" tar files, and even zipped tar files.  To install
+it, if you don't have a recent CVS snapshot (Dec. 2002), you first need
+to patch libstore in order to add the store_set_size () call which is
+used by tarfs:
+
+  $ cd /src/hurd
+  $ patch -p0 < /path/to/tarfs/libstore.diff
+  $ make -C libstore install
+
+Then you can use tarfs to mount (almost) any tar file:
+
+  $ settrans -ca a /hurd/tarfs -z myfile.tar.gz
+  $ settrans -ca b /hurd/tarfs -y myfile.tar.bz2
+  $ settrans -ca c /hurd/tarfs myfile.tar
+
+You can even use it to create new tar files:
+
+  $ settrans -ca new /hurd/tarfs -cz newfile.tar.gz
+  $ cp -r all my files  new/
+  $ syncfs new
+
+This is not as fast as "tar czvf newfile.tar.gz all my files" but at least,
+it's more original. ;)
+
+tarfs borrows code from the mboxfs translator (fsutils.[ch], netfs.c,
+backend.h), from the Midnight Commander file manager v. 4.5.30 (tar.c) and
+from GNU Tar (names.c). The two latter files are under LGPL and the rest is
+under GPL (in the future, the code from GNU tar might be replaced by a
+"cleaner" custom version).
+
+
+2. Gzip and Bzip2 stores
+
+For tarfs to be able to transparently read from and write to zipped tar files,
+a gzip and a bzip2 store (i.e. a libstore module) have been written, using
+zlib and libbz2. Libstore currently only provides read-only zip stores.  These
+two new stores support both reading and writing.  However this is done in a
+special way: It uses a copy-on-write caching scheme and the data written to
+zip stores gets actually written (i.e. compressed and written) to the
+underlying file *only* when the store is freed (call to store_free ()).  The
+issue was that both zlib and libbz2 provide either the ability of read *or* to
+write to a file, not both.  Moreover, I couldn't think of any reliable way to
+provide read-write zip stores without caching.
+
+Note also that these zip stores are quite slow when being created: They
+actually first traverse (and uncompress) the whole file in order to get
+its size.  This is because libstore needs to know the store size before
+anything can be done.  When being traversed, the uncompressed stream does
+not get cached; caching is done only when writing to the store.
+
+
+3. Misc
+
+You can try out the HIDE_FILES_NOT_OWNED compilation flag which creates
+a tarfs that shows you only the files that belong to you (looking at your list
+of effective user ids). :)
+
+
+<ludo@type-z.org>                         http://people.type-z.org/ludo/hurd/
+<ludovic.courtes@utbm.fr>

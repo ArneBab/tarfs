@@ -1,0 +1,30 @@
+Known tarfs bugs
+=--------------=
+
+
+1. General
+
+* Doesn't pass the "ustar-all-quickest.tar" test file with long links.
+* io_map () not implemented (gcc uses it unfortunately).
+* netfs.c (netfs_get_dirents): too much memory may be allocated (mmap'd).
+
+
+2. Writable fs bugs
+
+* UIDs/GIDs are not properly handled (uses numbers instead of strings).
+* Deadlock when syncing the filesystem at tarfs.c:tarfs_sync_fs when
+  trying to acquire the lock of a node (couldn't reproduce it though).
+
+
+3. Zip stores bug
+
+* Missing feature: RPC encoding/decoding stuff not supported.
+
+  Note: The gzip and bzip2 stores sharing most of their code, there is a
+        high probability that any bug occuring with on backend should also
+	occur with the other.  If you encounter a bug, please try using
+	both backends to see if that makes any difference.  The code is
+	also very close to what's in cache.c.
+
+
+For more bugs, "grep '\(FIXME\|XXX\)' *.c" should do the trick.

@@ -1,0 +1,388 @@
+2002-12-04
+
+	* tarlist.c (tar_put_item): Fixed a bug in placing "foo/bar".
+	* tar.c (tar_make_header): Add a trailing '/' to the name if it's
+	  a directory.
+	* fs.c (fs_make_node): Duplicate NAME.
+	  (fs_unlink_node): Don't free () anything.
+	  (fs_free_node): New function.
+	  (_make_node): Always set st_fstype to FSTYPE_TAR.
+	* tarfs.c (tarfs_unlink_node): Free NODE only once it has been
+	  successfully unlinked.
+	* netfs.c (netfs_S_file_syncfs): New stub that doesn't lock
+	  the node passed by the user.
+
+2002-12-03
+
+	* tarfs.c (tarfs_add_header): In case of "inconsistent tar archive",
+	  call tarfs_create_node () to create the missing node.
+	* netfs.c (fs_unlink_node): Lock netfs_node_refcnt_lock before
+	  accessing node->references.
+	  (fs_unlink_node): Don't call netfs_nput ().
+
+2002-11-26
+
+	* tarfs.c (tarfs_sync_fs::tar_write): Check whether we need to
+	  call open_store () before actually calling store_write ().
+	* netfs.c (netfs_attempt_mkdir): Don't lock & ref the newly created
+	  directory; don't unlock DIR.
+	* cache.c (__cache_set_size): New function.
+	  (__cache_synced): New function.
+	  (cache_cache): Call __cache_set_size () if necessary.
+	  (cache_write): Use __cache_set_size () and __cache_synced ().
+
+2002-11-19
+
+	* tarfs.c (tarfs_set_options): Initialize err.
+	* fs.c (fs_make_node): Return EEXIST if the node already exists.
+	  (_make_node): Check whether M denotes a directory.
+	* netfs.c (netfs_attempt_chmod): Fixed typo.
+	  (netfs_attempt_lookup): Lock node on success.
+
+2002-11-13
+
+	* fs.c (fs_link_node, fs_link_node_path): Update nn_translated so
+	  that lookups of symlink gets redirected to their target
+	  (ie. "cat link" shows link's target contents, *not* link's target
+	  path).
+	* zipstores.c (ZIP (open)): Do not read gzip header if the file
+	  is empty.
+	  (ZIP (stream_read)): Do nothing if the file is empty.
+	  (ZIP (read)): Initialize err to 0.
+	* store-gzip.c (gzip_write_header): New function.
+	* cache.c (cache_read): Before accessing blocks[block], make sure
+	  BLOCK is not larger that BLOCKS_SIZE.
+	* zipstore.c (ZIP (read)): Likewise.
+	* tarfs.c (tarfs_init): Don't forget to call cache_init ().
+
+2002-11-09
+
+	* tarfs.c (tarfs_set_options): Close and reopen file when mode
+	  has changed.
+	* cache.c (fetch_block): Use "orig_size" instead of the current node
+	  size when calculating the amount of data to be read.
+	* zipstores.c (fetch_block): Likewise.
+	* cache.c (cache_write): Don't fetch_block() if beyond last available
+	  block on disk.
+	  (cache_set_size): Check whether SIZE is 0.
+	  (cache_write): Fixed the computation of WRITE.
+	* zipstores.c (ZIP (write)): Likewise.
+
+2002-11-06
+
+	* cache.c (cache_set_size): Don't allocate blocks here.
+	  (alloc_block): New function.
+	  (cache_init): New function.
+	* tarfs.c (read_from_file): New function.
+	  (__tar_file_lock): New variable used throughout the thing.
+	* netfs.c (netfs_S_io_map): New function.
+
+2002-11-05
+
+	* netfs.c (netfs_attempt_chmod): Don't remove the FMT bits.
+	* fs.c (fs_make_node): Make sure the FMT bits are set.
+
+2002-11-04
+
+	* tarfs.c (tarfs_create_node): Call cache_create ().
+	* cache.c (cache_write): Call cache_set_size () if the node has been
+	  synced.
+	  (cache_write): Allocate new blocks here.
+
+2002-10-24
+
+	* zipstores.c (ZIP (set_size)): Do not allocate new blocks here.
+	  (ZIP (write)): Allocate new blocks here.
+	  (struct ZIP (object)): zip_orig_blocks_size: New field.
+	  (ZIP (traverse)): Renamed to "traverse".
+	* fs.c (_find_node): Look for '.' and '..'.
+	* tarfs.c (tarfs_add_header): Complain if a node already exists.
+	* cache.c: Changed cache_read/cache_write prototypes to make them
+	  similar to those of store_read/store_write.
+
+2002-10-22
+
+	* fs.c (fs_dir_first_entry, fs_dir_next_entry): New functions.
+	* tarlist.c: New file.
+	* tarfs.c: Moved the tar list mgmt functions to tarlist.c.
+	* tarfs.h: Added tarlist.c prototypes.
+	* cache.c: Added locks.
+
+2002-10-21
+
+	* zipstores.c: Moved gzip-specific code to store-gzip.c (CRC, etc.).
+	* store-gzip.c (gzip_write_suffix): New function.
+	* testfs.sh: New file.
+
+2002-10-20
+
+	* zipstores.c (struct stream_state): Added a lock.
+	  (struct ZIP (object)): Added a lock for the cache.
+	  (ZIP (set_size)): Also set store->end and store->wrap_src and
+	  runs[0].length.
+
+2002-10-19
+
+	* zipstores.c (ZIP (stream_write)): Increment write's file_offs
+	  *only* after having actually written things.
+	* libstore.diff: Use size_t instead of off_t/store_offset_t for
+	  the NEWSIZE parameter.
+
+2002-10-17
+
+	* zipstores.c (enum status): STATUS_IDLE: New value.
+	  (ZIP (stream_*_init)): Close non-idle streams.
+	  (ZIP (sync)): Rewrite file if size has changed.
+	  (struct ZIP (store)): Renamed to ZIP (object).
+	  (struct ZIP (object)): zip_orig_size: New field.
+
+2002-10-15
+
+	* zipstores.c (struct stream_state): New structure
+	  (struct ZIP (store)): Added the `read' and `write' fields.
+	  (stream_read): Killed a bug (assignment of *len).
+	  (store_simple_write): New function.
+
+2002-10-13
+
+	* zipstores.c: Implemented a copy-on-write page cache, mostly copied
+	  from cache.c, rather than trying to adapt cache.c and integrate it.
+	  This is mostly because (1) cache.c already make asumptions that we
+	  are reading from nodes and (2) zipstores.c may exist in the future
+	  as a stand-alone file, outside of tarfs.
+	  ZIP (stream_write): New function.
+	  ZIP (sync): New function.
+	  STORE_ZIP (class): Use ZIP (sync) () as a cleanup function.
+	  fetch_block: New function.
+	* tarfs.c (tarfs_sync_fs): Call store_free () when it's done.
+
+2002-10-09
+
+	* tarfs.c (tarfs_set_options): Support for runtime option settings.
+	* store-gzip.c (gzip_verify_crc): New function.
+	* zipstores.c (ZIP (stream_read)): Added support for CRC check
+	  (only used by the gzip store).
+
+2002-10-07
+
+	* Makefile (DEBUG_ZIP): New flag.
+
+2002-10-06
+
+	* zipstores.c: New file.
+	* zip-stores.h: Renamed to zipstores.h.
+	* store-gzip.c: Include zipstores.c.
+	* store-bzip2.c: New file.
+
+2002-10-04
+
+	* debug.c: New file.
+	* tarfs.c (tarfs_parse_opts): 'D': New option.
+
+2002-10-03
+
+	* debug.h: New file.
+	* store-gzip.c: Crashes at EOF.
+
+2002-10-01
+
+	* tarfs.c (tar_put_item): New function.
+	  (tarfs_create_node): Moved some code to tar_put_item ().
+	  (tarfs_link_node): Use tar_put_item ().
+
+2002-09-25
+
+	* zip-stores.h: New file.
+	* store-gzip.c: New files.
+
+2002-09-23
+
+	* tarfs.c (debug): New macro.
+
+2002-09-22
+
+	* tarfs.c: New --create and --volatile options.
+
+2002-09-17
+
+	* fs.c (fs_link_node_path): New function.
+	* fs.c: Include fs.h to make sure that it's consistent.
+	  (fs_unlink_node): *Do* call netfs_nput ().
+	* backend.h (struct fs_backend): symlink_node, link_node, mkdev_node:
+	  New fields.
+	* tarfs.c: tarfs_symlink_node, tarfs_mkdev_node, tarfs_link_node:
+	  New functions.
+	* tarfs.c (tarfs_get_next_entry): Skip anonymous nodes.
+	  (tarfs_skip_entries): Likewise.
+	  (tarfs_set_cd): Likewise.
+	  (tarfs_create_node): Allow anonymous (nameless) nodes.
+	  (tarfs_lookup_node): Likewise.
+	* fs.c (_find_node): Do nothing for nameless nodes.
+
+2002-09-16
+
+	* netfs.c (netfs_attempt_create_file): Lock node and add a ref
+	  to it on success.
+	* fs.c (fs_unlink_node): Don't call netfs_nput ().
+
+2002-09-14
+
+	* Makefile (CFLAGS): Added -D_FILE_OFFSET_BITS=64 so that it can
+	  work well (otherwise, struct dirent are wrong and the first 4
+	  bytes of filenames would just disappear...)
+	* tarfs.c (tarfs_sync_fs): Write a zero record at the end so that
+	  tar parsing doesn't get messed up.
+	  tar_write: New subfunction.
+
+2002-09-13 (Friday!)
+
+	* netfs.c: Moved off_t into loff_t to work with 0.3 interfaces.
+	* tarfs.c (netfs_server_name): New netfs variable.
+	  (netfs_server_version): Likewise.
+	* netfs.c: Changed struct stat into io_statbuf_t and
+	  struct statfs into fsys_statfsbuf_t.
+	* backend.h (change_stat): Likewise.
+	* tarfs.c (tarfs_change_stat): Likewise.
+	* netfs.c (_make_node): Likewise + set nn_translated to st_mode.
+	  (fs_hard_link_node): Likewise.
+	* backend.h (init): Pass an iouser to init.
+	* main.c (main): Likewise.
+
+2002-09-09
+
+	* zio.h, zio-file.c, zio-gzip.c, zio-bzip2.c: New files.
+	* tarfs.c: Replaced store_* with zio_*.
+	* tar.c: Likewise.
+	* cache.c: Likewise.
+	* tarfs.c (tarfs_sync_fs): Truncate file size if necessary.
+	* tarfs.c (tarfs_sync_fs): Don't call cache_ahead() if we are
+	  at least one block behind.
+
+2002-09-07
+
+	* fsutils.[ch]: Renamed to fs.[ch] (looks better).
+	* fs.[ch]: New files.
+	* tarfs_defs.h: Renamed to tarfs.h (also looks better).
+	* tarfs.h: New file.
+	* tarfs.h (struct tar_item): Removed field 'header' which is useless.
+	* fs.c: Set DEBUG_FS to enable fs.c's debugging output.
+	* tarfs.c (tarfs_get_args): Handle options.
+	* backend.h (struct netnode): Added the `hardlink' field.
+	* fs.c (fs_hard_link_node): Use the `hardlink' field of netnode.
+	* cache.c (cache_read): Likewise.
+	* tarfs.c (tarfs_write_node): Likewise.
+	* tarfs.c (tarfs_change_stat): Likewise.
+	* names.c (uid_to_uname, gid_to_uname): New functions from GNU tar.
+	* tarfs.c (tarfs_create_node): Return ENAMETOOLONG when relevant.
+	* fs.c (fs_hard_link_node): Increase TARGET's st_nlink.
+	* fs.c (fs_unlink_node): Check NODE's st_nlink.
+	* fs.c: get_path_(from|to)_root renamed to fs_get...
+	* netfs.c (netfs_attempt_syncfs): Only call go_away () which in turn
+	  should call sync_fs ().
+	* fs.c (fs_unlink_node): Call netfs_nput ().
+
+2002-09-05
+
+	* cache.c (cache_set_size): Fixed typo in the block allocation.
+	* tarfs.c (cache_ahead): New function.
+	* tarfs.c (tarfs_create_node): New nodes are inserted in an optimal
+	  way.
+	* current status: Syncing works when adding a file. :)
+
+2002-09-04
+
+	* tar.c (tar_make_header): New function (FIXME: Bad chksum).
+	* tarfs.c (tarfs_sync_fs): Cache *all* following nodes if necessary.
+
+2002-09-03
+
+	* tarfs.c (read_archive): Open it read-write when relevant.
+	* tarfs.c (tarfs_sync_fs): Ends up in an indefinite loop when
+	  writing contents.
+
+2002-09-02
+
+	* tarfs.c (tar_make_item): Args changed.
+	* cache.c (cache_synced): New function to replace the contents_changed field.
+	* cache.c (cache_sync): New function.
+	* tarfs.c (tarfs_sync_fs): Almost complete (never tried ;).
+
+2002-09-01
+
+	* tarfs.c (tar_insert_item): Fixed some flaws.
+
+2002-08-31
+
+	* fsutils.c (fs_make_node): Fixed typo in newnode->prevp assignment.
+	* fsutils.c (fs_unlink_node): Returns error_t.
+
+2002-08-27
+
+	* cache.c (cache_read): Make sure that node is available on disk
+	  before calling read_from_file ().
+	* cache.c (cache_write): Likewise.
+
+2002-08-26
+
+	* cache.c (cache_set_size): New function.
+	* fsutils.c (fs_unlink_node): New function.
+
+2002-08-24
+
+	* cache.c (cache_write): Writing to a file with copy-on-write works.
+	* fsutils.c (_make_node): Set st_blocksize to 1024, better than 1.
+	* fsutils.c: A bit more GNU Coding Std compliant. ;)
+	* backend.h (struct fs_backend): New callbacks.
+
+2002-08-23
+
+	* cache.c, cache.h: New files: node's cache management.
+	* cache.c (cache_read): Reading directly from the file (i.e.
+	  store_read ()) works.
+
+2002-08-20
+
+	* netfs.c (OWNERSHIP): New macro to check whether a user owns a node.
+	* netfs.c (HIDE_FILES_NOT_OWNED): New compilation flag.
+	* tarfs_defs.h: New data structures to support writing:
+	  struct tar_item, struct status and struct ccache;
+	  struct tarfs_info also changed.
+	* backend.h (struct fs_backend): New fields to support writing.
+	* tarfs.c: New functions to manage a linked list of tar items,
+	  new functions to support writing (do nothing so far).
+	* tar.c: fill_stat_from_header renamed to tar_header2stat.
+	-> this is an unstable version!
+
+2002-08-19
+
+	* netfs.c: Uses EROFS instead of EOPNOTSUPP
+	  (netfs_attempt_create_file): Set *NP to NULL before returning
+	  (netfs_attempt_lookup): When lookup'ing "." and "..", first make
+	  sure that DIR is a directory (thus, it is not possible to cd to
+	  a file).
+	* tarfs.c (tarfs_init): Retrieve permissions from the tar file and
+	  set them to the root node.
+	* version.h: File removed since tarfs is not part of the Hurd tree...
+
+2002-08-12
+
+	* tarfs.c (tarfs_add_header): changed so that it can handle hard links
+	* fsutils.c (fs_hard_link_node): new function
+	* fsutils.c (fs_find_node_path): new function
+	* fsutils.c (fs_make_node_path): uses above-mentioned function
+	* tarfs.c: susbstituted error () to fprintf ()
+	* tarfs.c (tarfs_new_dirent): renamed to _new_dirent ()
+	* tarfs.c (_new_dirent): replaced vm_allocate () by mmap ()
+
+2002-08-03
+
+	* tar.c (skip_n_records): removed useless calls to get_next_record()
+	* tarfs.c (tarfs_get_args): appends filename to the arglist
+
+2002-08-02	Ludovic Courtès <ludo@type-z.org>
+
+	* tarfs.c: set st_fstype to FSTYPE_TAR
+	* tarfs.c: tarfs_add_header (): creates nodes even if one of its subdir
+	  does not exist in the current tree (eg.: creates "/foo/bar" even
+	  if "/foo" does not exist, just create "/foo" before)
+	* Makefile: added an install rule :)

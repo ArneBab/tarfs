@@ -1,0 +1,15 @@
+TODO List
+=-------=
+
+* Get a better tar.c (parsing engine) from GNU tar or write it from scratch.
+
+* Implement passive translator settings: this could typically be done using
+  the `link' field of the tar header to store the translator command line;
+  then we could use an unused byte of the header to say that there is a
+  translator set on this node.  For symlinks, we would not show any passive
+  translator setting.
+
+* Implement netfs_S_io_map ().
+
+* Update the gzip store to make it more robust (for instance, find *real*
+  specifications of the header format).
