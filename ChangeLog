@@ -1,3 +1,8 @@
+2006-03-08  Ben Asselstine  <benasselstine@gmail.com>
+
+	* tar.c (tar_header2stat): Correctly setting `st_blocks' of ST.
+
+
 2006-03-07  Ben Asselstine  <benasselstine@gmail.com>
 
 	* store-gzip.c (read_next): remove static from nested

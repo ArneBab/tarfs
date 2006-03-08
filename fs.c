@@ -211,7 +211,7 @@ _make_node (struct node **n, struct node *dir, char* name, mode_t m)
   st.st_nlink   = 1;	/* number of subdir plus two, one otherwise. */
   st.st_size    = 0;
   st.st_blksize = 1024;	/* optimal block size for reading */
-  st.st_blocks  = 1;	/* XXX */
+  st.st_blocks  = 1;
   st.st_gen     = 0;
 
   if (S_ISDIR (m))

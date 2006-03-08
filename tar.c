@@ -173,6 +173,10 @@ tar_header2stat (io_statbuf_t *st, tar_record_t *header)
     }
   //st->st_size = hstat.st_size;
   st->st_size  = from_oct (1 + 12, header->header.size);
+  if (st->st_size > 0)
+    st->st_blocks = ((st->st_size - 1) / 512) + 1;
+  else
+    st->st_blocks = 0;
   st->st_mtime = from_oct (1 + 12, header->header.mtime);
   st->st_atime = from_oct (1 + 12, header->header.atime);
   st->st_ctime = from_oct (1 + 12, header->header.ctime);
