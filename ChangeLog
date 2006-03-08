@@ -1,3 +1,16 @@
+2006-03-07  Ben Asselstine  <benasselstine@gmail.com>
+
+	* store-gzip.c (read_next): remove static from nested
+	  function declaration.
+	* tarfs.c (sync_archive): Likewise.
+	(read_archive): Likewise.
+	* zipstores.c (do_write): Likewise.
+	* tar.c (read_header): Correctly handle archive names and
+	archive link names when they are exactly NAMSIZ characters long.
+	* tarfs.c (add_header): Likewise.
+	* TODO: Removed `ustar-all-quickest.tar' which passes now.
+
+
 2002-12-04
 
 	* tarlist.c (tar_put_item): Fixed a bug in placing "foo/bar".

@@ -331,11 +331,15 @@ tarfs_add_header (tar_record_t *hdr, off_t offset)
   static struct tar_item *last_item = NULL;
   struct node *dir, *new = NULL;
   char *name, *notfound, *retry;
+  char arch_name[NAMSIZ + 1];
   
   assert (hdr != NULL);
 
   dir = netfs_root_node;
-  name = D (hdr->header.arch_name);
+
+  memcpy (arch_name, hdr->header.arch_name, NAMSIZ);
+  arch_name[NAMSIZ] = '\0';
+  name = strdup (arch_name);
   assert (name);
   debug (("name = %s", name));
 
@@ -357,6 +361,7 @@ tarfs_add_header (tar_record_t *hdr, off_t offset)
       NEW_NODE_INFO (new);*/
       free (name);
       name = retry;
+      dir = new;
     }
   }
   while (retry);
@@ -387,7 +392,9 @@ tarfs_add_header (tar_record_t *hdr, off_t offset)
       debug (("Hard linking \"%s\"", name));
 
       /* Get the target's node first. */
-      tgname = strdup (hdr->header.arch_linkname);
+      tgname = malloc (NAMSIZ + 1);
+      memcpy (tgname, hdr->header.arch_linkname, NAMSIZ);
+      tgname [NAMSIZ] = '\0';
       target = netfs_root_node;
       fs_find_node_path (&target, &retry, &notfound, tgname);
 
@@ -483,7 +490,7 @@ tarfs_init (struct node **root, struct iouser *user)
   mode_t mode = 0644;
 
   /* Sync the archive.  */
-  static void
+  void
   sync_archive ()
   {
     error_t tarfs_sync_fs (int wait);
@@ -498,7 +505,7 @@ tarfs_init (struct node **root, struct iouser *user)
   }
 
   /* Reads and parses a tar archive, possibly in a separate thread.  */
-  static void
+  void
   read_archive ()
   {
     error_t err;

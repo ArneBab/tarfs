@@ -4,7 +4,6 @@ Known tarfs bugs
 
 1. General
 
-* Doesn't pass the "ustar-all-quickest.tar" test file with long links.
 * io_map () not implemented (gcc uses it unfortunately).
 * netfs.c (netfs_get_dirents): too much memory may be allocated (mmap'd).
 

@@ -178,7 +178,7 @@ gzip_read_header (struct store *store,
   size_t amount, index = 0;
 
   /* Load next block and continue */
-  static inline
+  inline
   error_t read_next ()
   {
     error_t err;

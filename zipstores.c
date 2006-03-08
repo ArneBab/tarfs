@@ -267,7 +267,7 @@ ZIP (stream_write_init) (struct ZIP (object) *zip)
     /* Check whether we need to write a gzip header */
     if (!zip->source->size)
     {
-      static error_t
+      error_t
       do_write (char *buf, size_t amount)
       {
 	size_t len;

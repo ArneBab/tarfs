@@ -204,6 +204,13 @@ read_header (struct store *tar_file)
   static char *next_lonname = NULL, *next_lonlink = NULL;
   char *current_file_name, *current_link_name;
   struct stat hstat;		/* Stat struct corresponding */
+  char arch_name[NAMSIZ + 1];
+  char arch_linkname[NAMSIZ + 1];
+
+  memcpy (arch_name, header->header.arch_name, NAMSIZ);
+  arch_name [NAMSIZ] = '\0';
+  memcpy (arch_linkname, header->header.arch_linkname, NAMSIZ);
+  arch_linkname [NAMSIZ] = '\0';
 
 
 recurse:
@@ -249,9 +256,10 @@ recurse:
   /*
    * linkflag on BSDI tar (pax) always '\000'
    */
+
   if (header->header.linkflag == '\000' &&
-      strlen (header->header.arch_name) &&
-      header->header.arch_name[strlen (header->header.arch_name) - 1] == '/')
+      strlen (arch_name) &&
+      arch_name[strlen (arch_name) - 1] == '/')
     header->header.linkflag = LF_DIR;
 
   /*
@@ -262,7 +270,6 @@ recurse:
   else
     hstat.st_size = from_oct (1 + 12, header->header.size);
 
-  header->header.arch_name[NAMSIZ - 1] = '\0';
   if (header->header.linkflag == LF_LONGNAME
       || header->header.linkflag == LF_LONGLINK)
     {
@@ -289,7 +296,7 @@ recurse:
 
       current_file_name = (next_lonname
 			   ? next_lonname
-			   : strdup (header->header.arch_name));
+			   : strdup (arch_name));
       len = strlen (current_file_name);
       if (current_file_name[len - 1] == '/')
 	{
@@ -297,9 +304,10 @@ recurse:
 	  isdir = 1;
 	}
 
+
       current_link_name = (next_lonlink
 			   ? next_lonlink
-			   : strdup (header->header.arch_linkname));
+			   : strdup (arch_linkname));
       len = strlen (current_link_name);
       if (len && current_link_name[len - 1] == '/')
 	current_link_name[len - 1] = 0;
