@@ -1,7 +1,7 @@
 /* Compression store backend.
 
    Copyright (C) 1995,96,97,99,2000,01, 02 Free Software Foundation, Inc.
-   Written by Ludovic Courtes <ludovic.courtes@utbm.fr>
+   Written by Ludovic Courtes <ludo@chbouib.org>
    This file is part of the GNU Hurd.
 
    The GNU Hurd is free software; you can redistribute it and/or

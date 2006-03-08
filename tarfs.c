@@ -1,5 +1,5 @@
 /* tarfs - A GNU tar filesystem for the Hurd.
-   Copyright (C) 2002, 2003  Ludovic Courtès <ludo@type-z.org>
+   Copyright (C) 2002, 2003  Ludovic Courtès <ludo@chbouib.org>
  
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ const char *argp_program_version =
   "tarfs(rw-alpha) for the GNU Hurd (compiled: " __DATE__ ")";
 
 /* Argp data */
-const char *argp_program_bug_address = "Ludovic Courtès <ludo@type-z.org>";
+const char *argp_program_bug_address = "Ludovic Courtès <ludo@chbouib.org>";
 const char *args_doc = "ARCHIVE";
 const char *doc = "Hurd tar filesystem:\n"
    "parses a tar archive and creates the corresponding filesystem\n";

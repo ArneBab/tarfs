@@ -1,5 +1,5 @@
 /* tarfs - A GNU tar filesystem for the Hurd.
-   Copyright (C) 2002, 2003  Ludovic Courtès <ludo@type-z.org>
+   Copyright (C) 2002, 2003  Ludovic Courtès <ludo@chbouib.org>
  
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as

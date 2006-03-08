@@ -1,5 +1,5 @@
 /* tarfs interface to libnetfs.
-   Copyright (C) 2002 Ludovic Courtès <ludo@type-z.org>
+   Copyright (C) 2002 Ludovic Courtès <ludo@chbouib.org>
  
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
