@@ -113,12 +113,12 @@ open_store ()
     case COMPRESS_NONE:
       err = store_file_open (tarfs_options.file_name, flags, &tar_file);
       break;
-    case COMPRESS_GZIP:
-      err = store_gzip_open (tarfs_options.file_name, flags, &tar_file);
-      break;
-    case COMPRESS_BZIP2:
-      err = store_bzip2_open (tarfs_options.file_name, flags, &tar_file);
-      break;
+    //case COMPRESS_GZIP:
+    //;1#B  err = store_gzip_open (tarfs_options.file_name, flags, &tar_file);
+    //  break;
+    //case COMPRESS_BZIP2:
+    //  err = store_bzip2_open (tarfs_options.file_name, flags, &tar_file);
+    //  break;
     default:
       error (1, EINVAL, "Compression method not implemented (yet)");
   }

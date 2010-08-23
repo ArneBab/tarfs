@@ -20,20 +20,20 @@ CC      = gcc
 INSTALL = install # cp
 CFLAGS  = -D_GNU_SOURCE -Wall -g -D_FILE_OFFSET_BITS=64
 CFLAGS += -DDEBUG # tarfs.c debugging
-#CFLAGS += -DDEBUG_FS # fs.c debugging
-CFLAGS += -DDEBUG_ZIP # zip stores debugging
+CFLAGS += -DDEBUG_FS # fs.c debugging
+#CFLAGS += -DDEBUG_ZIP # zip stores debugging
 
 # Uncomment the line below to get a fs that shows file *only* to their owner.
 #CFLAGS += -DHIDE_FILES_NOT_OWNED 
 
 # Note: -lz has to be first otherwise inflate() will be the exec server's
 #       inflate function
-LDFLAGS = -L~ -lz -L. -lnetfs -lfshelp -liohelp -lports \
-          -lihash -lshouldbeinlibc -lthreads -lstore -lbz2 #-lpthread
+LDFLAGS = -L~ -L. -lnetfs -lfshelp -liohelp -lports \
+          -lihash -lshouldbeinlibc -lthreads -lstore #-lz -lbz2 #-lpthread
 CTAGS   = ctags
 
-SRC     = main.c netfs.c tarfs.c tarlist.c fs.c cache.c tar.c names.c \
-          store-bzip2.c store-gzip.c debug.c
+SRC     = main.c netfs.c tarfs.c tarlist.c fs.c cache.c tar.c names.c debug.c #\
+#          store-bzip2.c store-gzip.c 
 
 OBJ     = $(SRC:%.c=%.o)
 
