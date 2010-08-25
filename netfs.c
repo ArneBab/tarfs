@@ -338,20 +338,12 @@ netfs_attempt_utimes (struct iouser *cred, struct node *np,
     if (! err)
       {
 	if (atime)
-	  {
-	    st.st_atime = atime->tv_sec;
-	    // bab: commented out to make it build.
-	    //st.st_atime_usec = atime->tv_nsec / 1000;
-	  }
+	    st.st_atim = *atime;
 	else
 	  flags |= TOUCH_ATIME;
 
 	if (mtime)
-	  {
-	    st.st_mtime = mtime->tv_sec;
-	    // bab: commented out to mak it build.
-	    //st.st_mtime_usec = mtime->tv_nsec / 1000;
-	  }
+	    st.st_mtim = *mtime;
 	else
 	  flags |= TOUCH_MTIME;
 
